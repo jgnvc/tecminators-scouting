@@ -513,8 +513,6 @@ comments = st.text_area(
 # CÁLCULO DE SCORING
 # =========================================================
 
-# AUTO
-
 auto_score = 0
 
 if leave:
@@ -528,8 +526,6 @@ auto_score += (
 )
 
 
-# TELEOP
-
 teleop_score = 0
 
 if teleop_park:
@@ -540,8 +536,6 @@ teleop_score += (
 )
 
 
-# CELL
-
 cell_score = (
     st.session_state.auto_cell_pollen
     + st.session_state.auto_cell_nectar
@@ -549,8 +543,6 @@ cell_score = (
     + st.session_state.teleop_cell_nectar
 ) * 2
 
-
-# FLOWERS
 
 flower_score = (
     st.session_state.bottom_nectar_bonus * 5
@@ -561,15 +553,11 @@ flower_score = (
 )
 
 
-# GARDEN
-
 garden_score = (
     st.session_state.garden_pollen
     + st.session_state.garden_nectar
 )
 
-
-# TOTAL
 
 total_score = (
     auto_score
@@ -715,5 +703,7 @@ if st.button(
     except Exception as e:
 
         st.error(
-            f"No se pudo guardar el scouting: {e}"
+            "No se pudo guardar el scouting."
         )
+
+        st.exception(e)

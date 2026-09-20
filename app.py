@@ -6,7 +6,7 @@ import streamlit as st
 
 st.set_page_config(
     page_title="TecMinators Scouting",
-    page_icon="🤖",
+    page_icon="",
     layout="centered"
 )
 
@@ -65,7 +65,7 @@ div.stButton > button {
 # TÍTULO
 # =========================================================
 
-st.title("🤖 TecMinators Scouting")
+st.title("TecMinators Scouting")
 st.caption("FTC BIOBUZZ 2026–2027")
 
 # =========================================================
@@ -99,10 +99,15 @@ for key, value in defaults.items():
 # =========================================================
 
 def counter(label, key, min_value=0):
+
     col1, col2, col3 = st.columns([1, 2, 1])
 
     with col1:
-        if st.button("−", key=f"{key}_minus", use_container_width=True):
+        if st.button(
+            "−",
+            key=f"{key}_minus",
+            use_container_width=True
+        ):
             if st.session_state[key] > min_value:
                 st.session_state[key] -= 1
 
@@ -125,7 +130,11 @@ def counter(label, key, min_value=0):
         )
 
     with col3:
-        if st.button("+", key=f"{key}_plus", use_container_width=True):
+        if st.button(
+            "+",
+            key=f"{key}_plus",
+            use_container_width=True
+        ):
             st.session_state[key] += 1
 
 
@@ -133,7 +142,7 @@ def counter(label, key, min_value=0):
 # DATOS GENERALES
 # =========================================================
 
-st.header("📋 Datos del Match")
+st.header("Datos del Match")
 
 match_type = st.selectbox(
     "Tipo de Match",
@@ -178,9 +187,12 @@ team_number = st.number_input(
 @st.fragment
 def auto_section():
 
-    st.header("🟡 AUTO")
+    st.header("AUTO")
 
-    st.markdown('<div class="section">', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section">',
+        unsafe_allow_html=True
+    )
 
     leave = st.checkbox("LEAVE")
 
@@ -199,12 +211,19 @@ def auto_section():
         "auto_cell_nectar"
     )
 
-    auto_park = st.checkbox("PARK durante AUTO")
+    auto_park = st.checkbox(
+        "PARK durante AUTO"
+    )
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    return leave, auto_park
 
 
-auto_section()
+leave, auto_park = auto_section()
 
 
 # =========================================================
@@ -214,9 +233,12 @@ auto_section()
 @st.fragment
 def teleop_section():
 
-    st.header("🔵 TELEOP")
+    st.header("TELEOP")
 
-    st.markdown('<div class="section">', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section">',
+        unsafe_allow_html=True
+    )
 
     counter(
         "HIVE TIPS",
@@ -233,7 +255,10 @@ def teleop_section():
         "teleop_cell_nectar"
     )
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
 
 
 teleop_section()
@@ -246,9 +271,12 @@ teleop_section()
 @st.fragment
 def flowers_section():
 
-    st.header("🌸 FLOWERS")
+    st.header("FLOWERS")
 
-    st.markdown('<div class="section">', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section">',
+        unsafe_allow_html=True
+    )
 
     counter(
         "POLLEN colocado en FLOWERS",
@@ -270,7 +298,10 @@ def flowers_section():
         "owned_flowers"
     )
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
 
 
 flowers_section()
@@ -283,9 +314,12 @@ flowers_section()
 @st.fragment
 def garden_section():
 
-    st.header("🌱 GARDEN")
+    st.header("GARDEN")
 
-    st.markdown('<div class="section">', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section">',
+        unsafe_allow_html=True
+    )
 
     counter(
         "POLLEN en GARDEN",
@@ -297,7 +331,10 @@ def garden_section():
         "garden_nectar"
     )
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
 
 
 garden_section()
@@ -307,15 +344,21 @@ garden_section()
 # END GAME
 # =========================================================
 
-st.header("🏁 END GAME")
+st.header("END GAME")
 
-st.markdown('<div class="section">', unsafe_allow_html=True)
+st.markdown(
+    '<div class="section">',
+    unsafe_allow_html=True
+)
 
 teleop_park = st.checkbox(
     "PARK durante TELEOP"
 )
 
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True
+)
 
 
 # =========================================================
@@ -325,9 +368,12 @@ st.markdown('</div>', unsafe_allow_html=True)
 @st.fragment
 def defense_section():
 
-    st.header("🛡️ DEFENSA")
+    st.header("DEFENSA")
 
-    st.markdown('<div class="section">', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section">',
+        unsafe_allow_html=True
+    )
 
     played_defense = st.radio(
         "¿Jugó defensa?",
@@ -353,7 +399,10 @@ def defense_section():
         horizontal=True
     )
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(
+        '</div>',
+        unsafe_allow_html=True
+    )
 
     return played_defense, was_defended
 
@@ -365,9 +414,12 @@ played_defense, was_defended = defense_section()
 # OBSERVACIONES
 # =========================================================
 
-st.header("👀 Observaciones")
+st.header("Observaciones")
 
-st.markdown('<div class="section">', unsafe_allow_html=True)
+st.markdown(
+    '<div class="section">',
+    unsafe_allow_html=True
+)
 
 speed = st.slider(
     "Velocidad",
@@ -397,14 +449,17 @@ driver = st.slider(
     value=3
 )
 
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown(
+    '</div>',
+    unsafe_allow_html=True
+)
 
 
 # =========================================================
 # COMENTARIOS
 # =========================================================
 
-st.header("📝 Comentarios")
+st.header("Comentarios")
 
 comments = st.text_area(
     "Comentarios del Scout",
@@ -418,6 +473,7 @@ comments = st.text_area(
 # =========================================================
 
 # AUTO
+
 auto_score = 0
 
 if leave:
@@ -426,19 +482,25 @@ if leave:
 if auto_park:
     auto_score += 5
 
-auto_score += st.session_state.auto_hive_tips * 20
+auto_score += (
+    st.session_state.auto_hive_tips * 20
+)
 
 
 # TELEOP
+
 teleop_score = 0
 
 if teleop_park:
     teleop_score += 5
 
-teleop_score += st.session_state.teleop_hive_tips * 20
+teleop_score += (
+    st.session_state.teleop_hive_tips * 20
+)
 
 
 # CELL
+
 cell_score = (
     st.session_state.auto_cell_pollen
     + st.session_state.auto_cell_nectar
@@ -448,6 +510,7 @@ cell_score = (
 
 
 # FLOWERS
+
 flower_score = (
     st.session_state.bottom_nectar_bonus * 5
     + (
@@ -458,6 +521,7 @@ flower_score = (
 
 
 # GARDEN
+
 garden_score = (
     st.session_state.garden_pollen
     + st.session_state.garden_nectar
@@ -465,6 +529,7 @@ garden_score = (
 
 
 # TOTAL
+
 total_score = (
     auto_score
     + teleop_score
@@ -478,7 +543,7 @@ total_score = (
 # SCORING FINAL
 # =========================================================
 
-st.header("🏆 Scoring Final")
+st.header("Scoring Final")
 
 st.markdown(
     f"""
@@ -496,6 +561,7 @@ st.markdown(
 # =========================================================
 
 scouting_data = {
+
     "match_type": match_type,
     "match_number": match_number,
     "alliance": alliance,
@@ -542,7 +608,7 @@ scouting_data = {
 # GUARDAR
 # =========================================================
 
-st.header("💾 Guardar Scouting")
+st.header("Guardar Scouting")
 
 if st.button(
     "GUARDAR MATCH",
@@ -550,6 +616,8 @@ if st.button(
     use_container_width=True
 ):
 
-    st.success("Scouting guardado correctamente.")
+    st.success(
+        "Scouting guardado correctamente."
+    )
 
     st.json(scouting_data)

@@ -1,4 +1,6 @@
 import streamlit as st
+import gspread
+from google.oauth2.service_account import Credentials
 
 # =========================================================
 # CONFIGURACIÓN
@@ -9,6 +11,35 @@ st.set_page_config(
     page_icon="",
     layout="centered"
 )
+
+# =========================================================
+# GOOGLE SHEETS
+# =========================================================
+
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
+
+
+@st.cache_resource
+def conectar_google_sheets():
+
+    credentials = Credentials.from_service_account_info(
+        dict(st.secrets["gcp_service_account"]),
+        scopes=SCOPES
+    )
+
+    client = gspread.authorize(credentials)
+
+    spreadsheet = client.open_by_key(
+        "1sGoESN2GVpw_n_Y32VvcA5ROYNCy_SCTuFZ8--ifwVw"
+    )
+
+    worksheet = spreadsheet.sheet1
+
+    return worksheet
+
 
 # =========================================================
 # ESTILOS
@@ -61,12 +92,14 @@ div.stButton > button {
 </style>
 """, unsafe_allow_html=True)
 
+
 # =========================================================
 # TÍTULO
 # =========================================================
 
 st.title("TecMinators Scouting")
 st.caption("FTC BIOBUZZ 2026–2027")
+
 
 # =========================================================
 # SESSION STATE
@@ -90,6 +123,7 @@ defaults = {
 }
 
 for key, value in defaults.items():
+
     if key not in st.session_state:
         st.session_state[key] = value
 
@@ -103,15 +137,18 @@ def counter(label, key, min_value=0):
     col1, col2, col3 = st.columns([1, 2, 1])
 
     with col1:
+
         if st.button(
             "−",
             key=f"{key}_minus",
             use_container_width=True
         ):
+
             if st.session_state[key] > min_value:
                 st.session_state[key] -= 1
 
     with col2:
+
         st.markdown(
             f"""
             <div style="
@@ -130,11 +167,13 @@ def counter(label, key, min_value=0):
         )
 
     with col3:
+
         if st.button(
             "+",
             key=f"{key}_plus",
             use_container_width=True
         ):
+
             st.session_state[key] += 1
 
 
@@ -162,12 +201,14 @@ match_number = st.number_input(
 col1, col2 = st.columns(2)
 
 with col1:
+
     alliance = st.selectbox(
         "Alliance",
         ["RED", "BLUE"]
     )
 
 with col2:
+
     position = st.selectbox(
         "Posición",
         [1, 2]
@@ -605,7 +646,7 @@ scouting_data = {
 
 
 # =========================================================
-# GUARDAR
+# GUARDAR EN GOOGLE SHEETS
 # =========================================================
 
 st.header("Guardar Scouting")
@@ -616,8 +657,63 @@ if st.button(
     use_container_width=True
 ):
 
-    st.success(
-        "Scouting guardado correctamente."
-    )
+    try:
 
-    st.json(scouting_data)
+        worksheet = conectar_google_sheets()
+
+        row = [
+            scouting_data["match_type"],
+            scouting_data["match_number"],
+            scouting_data["alliance"],
+            scouting_data["position"],
+            scouting_data["team_number"],
+
+            scouting_data["auto_leave"],
+            scouting_data["auto_hive_tips"],
+            scouting_data["auto_cell_pollen"],
+            scouting_data["auto_cell_nectar"],
+            scouting_data["auto_park"],
+
+            scouting_data["teleop_hive_tips"],
+            scouting_data["teleop_cell_pollen"],
+            scouting_data["teleop_cell_nectar"],
+
+            scouting_data["flower_pollen"],
+            scouting_data["flower_nectar"],
+            scouting_data["bottom_nectar_bonus"],
+            scouting_data["owned_flowers"],
+
+            scouting_data["garden_pollen"],
+            scouting_data["garden_nectar"],
+
+            scouting_data["teleop_park"],
+
+            scouting_data["played_defense"],
+            scouting_data["defense_attempts"],
+            scouting_data["defense_effective"],
+            scouting_data["was_defended"],
+
+            scouting_data["speed"],
+            scouting_data["cycle_speed"],
+            scouting_data["reliability"],
+            scouting_data["driver"],
+
+            scouting_data["comments"],
+
+            scouting_data["scoring_final_robot"]
+        ]
+
+        worksheet.append_row(
+            row,
+            value_input_option="USER_ENTERED"
+        )
+
+        st.success(
+            "Scouting guardado correctamente en Google Sheets."
+        )
+
+    except Exception as e:
+
+        st.error(
+            f"No se pudo guardar el scouting: {e}"
+        )

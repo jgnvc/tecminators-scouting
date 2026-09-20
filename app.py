@@ -1,625 +1,555 @@
 import streamlit as st
-from datetime import datetime
 
-# ============================================================
-# TECMINATORS SCOUTING
-# FTC BIOBUZZ 2026-2027
-# ============================================================
+# =========================================================
+# CONFIGURACIÓN
+# =========================================================
 
 st.set_page_config(
     page_title="TecMinators Scouting",
-    page_icon="🐝",
-    layout="centered",
-    initial_sidebar_state="collapsed"
+    page_icon="🤖",
+    layout="centered"
 )
 
-# ============================================================
-# CSS
-# ============================================================
+# =========================================================
+# ESTILOS
+# =========================================================
 
 st.markdown("""
 <style>
 
 .block-container {
-    max-width: 800px;
-    padding-top: 1.2rem;
-    padding-bottom: 5rem;
+    max-width: 700px;
+    padding-top: 2rem;
+    padding-bottom: 3rem;
 }
 
 h1 {
     text-align: center;
-    margin-bottom: 0.1rem;
 }
 
-.subtitle {
-    text-align: center;
-    color: #888;
-    margin-bottom: 1.8rem;
+h2 {
+    margin-top: 1.5rem;
 }
 
 .section {
-    font-size: 1.55rem;
-    font-weight: 700;
-    margin-top: 1.8rem;
-    margin-bottom: 0.8rem;
-    border-bottom: 2px solid #444;
-    padding-bottom: 0.35rem;
-}
-
-.counter-title {
-    font-weight: 600;
-    margin-bottom: 0.2rem;
-}
-
-.counter-value {
-    background: #262730;
-    border-radius: 10px;
-    min-height: 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.35rem;
-    font-weight: 700;
-}
-
-.score-box {
-    background: #262730;
-    border-radius: 12px;
-    padding: 1rem;
-    margin: 0.4rem 0;
-}
-
-.score-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 1.05rem;
-    padding: 0.25rem 0;
+    background-color: #1f2028;
+    padding: 18px;
+    border-radius: 14px;
+    margin-bottom: 18px;
 }
 
 .score-total {
-    font-size: 1.5rem;
-    font-weight: 800;
-    border-top: 2px solid #555;
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
+    background-color: #242630;
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    font-size: 25px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.score-total strong {
+    font-size: 32px;
 }
 
 div.stButton > button {
-    min-height: 3rem;
+    min-height: 45px;
+    font-size: 18px;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
+# =========================================================
+# TÍTULO
+# =========================================================
 
-# ============================================================
+st.title("🤖 TecMinators Scouting")
+st.caption("FTC BIOBUZZ 2026–2027")
+
+# =========================================================
 # SESSION STATE
-# ============================================================
+# =========================================================
 
-DEFAULTS = {
+defaults = {
     "auto_hive_tips": 0,
     "auto_cell_pollen": 0,
     "auto_cell_nectar": 0,
-    "auto_park": False,
-
     "teleop_hive_tips": 0,
     "teleop_cell_pollen": 0,
     "teleop_cell_nectar": 0,
-
     "flower_pollen": 0,
     "flower_nectar": 0,
     "bottom_nectar_bonus": 0,
     "owned_flowers": 0,
-
     "garden_pollen": 0,
     "garden_nectar": 0,
-
-    "teleop_park": False,
-
     "defense_attempts": 0,
     "defense_effective": 0,
 }
 
-for key, value in DEFAULTS.items():
+for key, value in defaults.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
 
-# ============================================================
-# COUNTER
-# ============================================================
+# =========================================================
+# FUNCIÓN COUNTER
+# =========================================================
 
-def counter(label, key, maximum=99):
+def counter(label, key, min_value=0):
+    col1, col2, col3 = st.columns([1, 2, 1])
 
-    if key not in st.session_state:
-        st.session_state[key] = 0
+    with col1:
+        if st.button("−", key=f"{key}_minus", use_container_width=True):
+            if st.session_state[key] > min_value:
+                st.session_state[key] -= 1
 
-    st.markdown(
-        f'<div class="counter-title">{label}</div>',
-        unsafe_allow_html=True
-    )
-
-    c1, c2, c3 = st.columns([1, 2, 1])
-
-    with c1:
-        if st.button(
-            "−",
-            key=f"{key}_minus",
-            use_container_width=True
-        ):
-            st.session_state[key] = max(
-                0,
-                st.session_state[key] - 1
-            )
-
-    with c2:
+    with col2:
         st.markdown(
             f"""
-            <div class="counter-value">
-                {st.session_state[key]}
+            <div style="
+                text-align:center;
+                font-size:24px;
+                font-weight:bold;
+                padding-top:6px;
+            ">
+                {label}<br>
+                <span style="font-size:30px;">
+                    {st.session_state[key]}
+                </span>
             </div>
             """,
             unsafe_allow_html=True
         )
 
-    with c3:
-        if st.button(
-            "+",
-            key=f"{key}_plus",
-            use_container_width=True
-        ):
-            st.session_state[key] = min(
-                maximum,
-                st.session_state[key] + 1
-            )
-
-    return st.session_state[key]
+    with col3:
+        if st.button("+", key=f"{key}_plus", use_container_width=True):
+            st.session_state[key] += 1
 
 
-# ============================================================
-# HEADER
-# ============================================================
-
-st.title("TECMINATORS")
-
-st.markdown(
-    '<div class="subtitle">FTC BIOBUZZ 2026–2027 · MATCH SCOUTING</div>',
-    unsafe_allow_html=True
-)
-
-
-# ============================================================
+# =========================================================
 # DATOS GENERALES
-# ============================================================
+# =========================================================
 
-st.markdown(
-    '<div class="section">Datos del Match</div>',
-    unsafe_allow_html=True
-)
+st.header("📋 Datos del Match")
 
 match_type = st.selectbox(
     "Tipo de Match",
-    ["Práctica", "Qualification", "Playoff"]
+    [
+        "Práctica",
+        "Qualification",
+        "Playoff"
+    ]
 )
 
 match_number = st.number_input(
     "Número de Match",
     min_value=1,
-    step=1,
-    value=1
+    step=1
 )
 
-alliance = st.selectbox(
-    "Alianza",
-    ["RED", "BLUE"]
-)
+col1, col2 = st.columns(2)
 
-position = st.selectbox(
-    "Posición",
-    ["1", "2"]
-)
+with col1:
+    alliance = st.selectbox(
+        "Alliance",
+        ["RED", "BLUE"]
+    )
+
+with col2:
+    position = st.selectbox(
+        "Posición",
+        [1, 2]
+    )
 
 team_number = st.number_input(
     "Número de equipo",
     min_value=1,
-    max_value=99999,
-    step=1,
-    value=1
+    step=1
 )
 
 
-# ============================================================
-# SCOUTING FRAGMENT
-# ============================================================
+# =========================================================
+# AUTO
+# =========================================================
 
 @st.fragment
-def scouting():
+def auto_section():
 
-    # ========================================================
-    # AUTO
-    # ========================================================
+    st.header("🟡 AUTO")
 
-    st.markdown(
-        '<div class="section">Autónomo</div>',
-        unsafe_allow_html=True
-    )
+    st.markdown('<div class="section">', unsafe_allow_html=True)
 
-    st.caption("30 segundos")
+    leave = st.checkbox("LEAVE")
 
-    auto_leave = st.checkbox(
-        "LEAVE"
-    )
-
-    auto_hive_tips = counter(
+    counter(
         "HIVE TIPS",
-        "auto_hive_tips",
-        20
+        "auto_hive_tips"
     )
 
-    auto_cell_pollen = counter(
+    counter(
         "POLLEN restante en CELL",
-        "auto_cell_pollen",
-        20
+        "auto_cell_pollen"
     )
 
-    auto_cell_nectar = counter(
+    counter(
         "NECTAR restante en CELL",
-        "auto_cell_nectar",
-        20
+        "auto_cell_nectar"
     )
 
-    auto_park = st.checkbox(
-        "PARK durante AUTO",
-        key="auto_park"
-    )
+    auto_park = st.checkbox("PARK durante AUTO")
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
-    # ========================================================
-    # TELEOP
-    # ========================================================
+auto_section()
 
-    st.markdown(
-        '<div class="section">TeleOp</div>',
-        unsafe_allow_html=True
-    )
 
-    st.caption("2 minutos")
+# =========================================================
+# TELEOP
+# =========================================================
 
-    teleop_hive_tips = counter(
+@st.fragment
+def teleop_section():
+
+    st.header("🔵 TELEOP")
+
+    st.markdown('<div class="section">', unsafe_allow_html=True)
+
+    counter(
         "HIVE TIPS",
-        "teleop_hive_tips",
-        20
+        "teleop_hive_tips"
     )
 
-    teleop_cell_pollen = counter(
+    counter(
         "POLLEN restante en CELL",
-        "teleop_cell_pollen",
-        20
+        "teleop_cell_pollen"
     )
 
-    teleop_cell_nectar = counter(
+    counter(
         "NECTAR restante en CELL",
-        "teleop_cell_nectar",
-        20
+        "teleop_cell_nectar"
     )
 
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # ========================================================
-    # FLOWERS
-    # ========================================================
 
-    st.markdown(
-        '<div class="section">Flowers</div>',
-        unsafe_allow_html=True
-    )
+teleop_section()
 
-    flower_pollen = counter(
+
+# =========================================================
+# FLOWERS
+# =========================================================
+
+@st.fragment
+def flowers_section():
+
+    st.header("🌸 FLOWERS")
+
+    st.markdown('<div class="section">', unsafe_allow_html=True)
+
+    counter(
         "POLLEN colocado en FLOWERS",
-        "flower_pollen",
-        40
+        "flower_pollen"
     )
 
-    flower_nectar = counter(
+    counter(
         "NECTAR colocado en FLOWERS",
-        "flower_nectar",
-        20
+        "flower_nectar"
     )
 
-    bottom_nectar_bonus = counter(
+    counter(
         "Bottom NECTAR Bonus",
-        "bottom_nectar_bonus",
-        4
+        "bottom_nectar_bonus"
     )
 
-    owned_flowers = counter(
+    counter(
         "FLOWERS propias",
-        "owned_flowers",
-        4
+        "owned_flowers"
     )
 
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # ========================================================
-    # GARDEN
-    # ========================================================
 
-    st.markdown(
-        '<div class="section">Garden</div>',
-        unsafe_allow_html=True
-    )
+flowers_section()
 
-    garden_pollen = counter(
+
+# =========================================================
+# GARDEN
+# =========================================================
+
+@st.fragment
+def garden_section():
+
+    st.header("🌱 GARDEN")
+
+    st.markdown('<div class="section">', unsafe_allow_html=True)
+
+    counter(
         "POLLEN en GARDEN",
-        "garden_pollen",
-        40
+        "garden_pollen"
     )
 
-    garden_nectar = counter(
+    counter(
         "NECTAR en GARDEN",
-        "garden_nectar",
-        20
+        "garden_nectar"
     )
 
-
-    # ========================================================
-    # END GAME
-    # ========================================================
-
-    st.markdown(
-        '<div class="section">End Game</div>',
-        unsafe_allow_html=True
-    )
-
-    teleop_park = st.checkbox(
-        "PARK durante TELEOP",
-        key="teleop_park"
-    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
-    # ========================================================
-    # DEFENSA
-    # ========================================================
+garden_section()
 
-    st.markdown(
-        '<div class="section">Defensa</div>',
-        unsafe_allow_html=True
-    )
+
+# =========================================================
+# END GAME
+# =========================================================
+
+st.header("🏁 END GAME")
+
+st.markdown('<div class="section">', unsafe_allow_html=True)
+
+teleop_park = st.checkbox(
+    "PARK durante TELEOP"
+)
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+
+# =========================================================
+# DEFENSA
+# =========================================================
+
+@st.fragment
+def defense_section():
+
+    st.header("🛡️ DEFENSA")
+
+    st.markdown('<div class="section">', unsafe_allow_html=True)
 
     played_defense = st.radio(
         "¿Jugó defensa?",
-        ["No", "Sí"],
+        ["Sí", "No"],
         horizontal=True
     )
 
-    defense_attempts = counter(
-        "Interacciones de defensa",
-        "defense_attempts",
-        30
-    )
+    if played_defense == "Sí":
 
-    defense_effective = counter(
-        "Interacciones efectivas",
-        "defense_effective",
-        30
-    )
+        counter(
+            "Interacciones defensivas",
+            "defense_attempts"
+        )
+
+        counter(
+            "Interacciones efectivas",
+            "defense_effective"
+        )
 
     was_defended = st.radio(
-        "¿Fue defendido?",
-        ["No", "Sí"],
+        "¿El robot recibió defensa?",
+        ["Sí", "No"],
         horizontal=True
     )
 
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # ========================================================
-    # OBSERVACIONES
-    # ========================================================
-
-    st.markdown(
-        '<div class="section">Observaciones</div>',
-        unsafe_allow_html=True
-    )
-
-    speed = st.select_slider(
-        "Velocidad",
-        options=[1, 2, 3, 4, 5],
-        value=3
-    )
-
-    cycle = st.select_slider(
-        "Velocidad de ciclo",
-        options=[1, 2, 3, 4, 5],
-        value=3
-    )
-
-    reliability = st.select_slider(
-        "Confiabilidad",
-        options=[1, 2, 3, 4, 5],
-        value=3
-    )
-
-    driver = st.select_slider(
-        "Driver",
-        options=[1, 2, 3, 4, 5],
-        value=3
-    )
+    return played_defense, was_defended
 
 
-    # ========================================================
-    # COMENTARIOS
-    # ========================================================
-
-    st.markdown(
-        '<div class="section">Comentarios</div>',
-        unsafe_allow_html=True
-    )
-
-    comments = st.text_area(
-        "Comentarios del Match",
-        placeholder="Ej. Buen ciclo, falló el intake...",
-        height=120
-    )
+played_defense, was_defended = defense_section()
 
 
-    # ========================================================
-    # SCORING
-    # ========================================================
+# =========================================================
+# OBSERVACIONES
+# =========================================================
 
-    # AUTO
-    auto_score = (
-        (3 if auto_leave else 0)
-        + (5 if auto_park else 0)
-        + (auto_hive_tips * 20)
-    )
+st.header("👀 Observaciones")
 
-    # TELEOP
-    teleop_score = (
-        (5 if teleop_park else 0)
-        + (teleop_hive_tips * 20)
-    )
+st.markdown('<div class="section">', unsafe_allow_html=True)
 
-    # CELL
-    cell_score = (
-        (auto_cell_pollen + auto_cell_nectar
-         + teleop_cell_pollen + teleop_cell_nectar) * 2
-    )
+speed = st.slider(
+    "Velocidad",
+    min_value=1,
+    max_value=5,
+    value=3
+)
 
-    # FLOWERS
-    flower_score = (
-        bottom_nectar_bonus * 5
-        + ((flower_pollen + flower_nectar) * 2)
-    )
+cycle_speed = st.slider(
+    "Velocidad de ciclos",
+    min_value=1,
+    max_value=5,
+    value=3
+)
 
-    # GARDEN
-    garden_score = (
-        (garden_pollen + garden_nectar) * 1
-    )
+reliability = st.slider(
+    "Confiabilidad",
+    min_value=1,
+    max_value=5,
+    value=3
+)
 
-    # TOTAL OBSERVADO
-    total_score = (
-        auto_score
-        + teleop_score
-        + cell_score
-        + flower_score
-        + garden_score
-    )
+driver = st.slider(
+    "Driver",
+    min_value=1,
+    max_value=5,
+    value=3
+)
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 
-    # ========================================================
-    # SCORING FINAL
-    # ========================================================
+# =========================================================
+# COMENTARIOS
+# =========================================================
 
-    st.markdown(
-        '<div class="section">Scoring Final</div>',
-        unsafe_allow_html=True
-    )
+st.header("📝 Comentarios")
 
-    st.caption(
-        "Puntuación observada/atribuida según las acciones registradas del robot."
-    )
-
-    st.markdown(
-        f"""
-        <div class="score-box">
-
-            <div class="score-row">
-                <span>AUTÓNOMO</span>
-                <strong>{auto_score}</strong>
-            </div>
-
-            <div class="score-row">
-                <span>TELEOP</span>
-                <strong>{teleop_score}</strong>
-            </div>
-
-            <div class="score-row">
-                <span>CELL</span>
-                <strong>{cell_score}</strong>
-            </div>
-
-            <div class="score-row">
-                <span>FLOWERS</span>
-                <strong>{flower_score}</strong>
-            </div>
-
-            <div class="score-row">
-                <span>GARDEN</span>
-                <strong>{garden_score}</strong>
-            </div>
-
-            <div class="score-row score-total">
-                <span>TOTAL</span>
-                <strong>{total_score}</strong>
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+comments = st.text_area(
+    "Comentarios del Scout",
+    placeholder="Escribe aquí cualquier observación importante...",
+    height=120
+)
 
 
-    # ========================================================
-    # GUARDAR
-    # ========================================================
+# =========================================================
+# CÁLCULO DE SCORING
+# =========================================================
 
-    st.markdown("")
+# AUTO
+auto_score = 0
 
-    if st.button(
-        "GUARDAR MATCH",
-        type="primary",
-        use_container_width=True
-    ):
+if leave:
+    auto_score += 3
 
-        scouting_data = {
-            "timestamp": datetime.now().isoformat(),
+if auto_park:
+    auto_score += 5
 
-            "match_type": match_type,
-            "match_number": match_number,
-            "alliance": alliance,
-            "position": position,
-            "team_number": team_number,
-
-            "auto_leave": auto_leave,
-            "auto_park": auto_park,
-            "auto_hive_tips": auto_hive_tips,
-            "auto_cell_pollen": auto_cell_pollen,
-            "auto_cell_nectar": auto_cell_nectar,
-
-            "teleop_hive_tips": teleop_hive_tips,
-            "teleop_cell_pollen": teleop_cell_pollen,
-            "teleop_cell_nectar": teleop_cell_nectar,
-
-            "flower_pollen": flower_pollen,
-            "flower_nectar": flower_nectar,
-            "bottom_nectar_bonus": bottom_nectar_bonus,
-            "owned_flowers": owned_flowers,
-
-            "garden_pollen": garden_pollen,
-            "garden_nectar": garden_nectar,
-
-            "teleop_park": teleop_park,
-
-            "played_defense": played_defense,
-            "defense_attempts": defense_attempts,
-            "defense_effective": defense_effective,
-            "was_defended": was_defended,
-
-            "speed": speed,
-            "cycle": cycle,
-            "reliability": reliability,
-            "driver": driver,
-
-            "auto_score": auto_score,
-            "teleop_score": teleop_score,
-            "cell_score": cell_score,
-            "flower_score": flower_score,
-            "garden_score": garden_score,
-            "total_score": total_score,
-
-            "comments": comments
-        }
-
-        st.success("Match registrado correctamente.")
-
-        st.json(scouting_data)
+auto_score += st.session_state.auto_hive_tips * 20
 
 
-scouting()
+# TELEOP
+teleop_score = 0
+
+if teleop_park:
+    teleop_score += 5
+
+teleop_score += st.session_state.teleop_hive_tips * 20
+
+
+# CELL
+cell_score = (
+    st.session_state.auto_cell_pollen
+    + st.session_state.auto_cell_nectar
+    + st.session_state.teleop_cell_pollen
+    + st.session_state.teleop_cell_nectar
+) * 2
+
+
+# FLOWERS
+flower_score = (
+    st.session_state.bottom_nectar_bonus * 5
+    + (
+        st.session_state.flower_pollen
+        + st.session_state.flower_nectar
+    ) * 2
+)
+
+
+# GARDEN
+garden_score = (
+    st.session_state.garden_pollen
+    + st.session_state.garden_nectar
+)
+
+
+# TOTAL
+total_score = (
+    auto_score
+    + teleop_score
+    + cell_score
+    + flower_score
+    + garden_score
+)
+
+
+# =========================================================
+# SCORING FINAL
+# =========================================================
+
+st.header("🏆 Scoring Final")
+
+st.markdown(
+    f"""
+    <div class="score-total">
+        Scoring final solo Robot:
+        <strong>{total_score} ptos</strong>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# =========================================================
+# DATOS A GUARDAR
+# =========================================================
+
+scouting_data = {
+    "match_type": match_type,
+    "match_number": match_number,
+    "alliance": alliance,
+    "position": position,
+    "team_number": team_number,
+
+    "auto_leave": leave,
+    "auto_hive_tips": st.session_state.auto_hive_tips,
+    "auto_cell_pollen": st.session_state.auto_cell_pollen,
+    "auto_cell_nectar": st.session_state.auto_cell_nectar,
+    "auto_park": auto_park,
+
+    "teleop_hive_tips": st.session_state.teleop_hive_tips,
+    "teleop_cell_pollen": st.session_state.teleop_cell_pollen,
+    "teleop_cell_nectar": st.session_state.teleop_cell_nectar,
+
+    "flower_pollen": st.session_state.flower_pollen,
+    "flower_nectar": st.session_state.flower_nectar,
+    "bottom_nectar_bonus": st.session_state.bottom_nectar_bonus,
+    "owned_flowers": st.session_state.owned_flowers,
+
+    "garden_pollen": st.session_state.garden_pollen,
+    "garden_nectar": st.session_state.garden_nectar,
+
+    "teleop_park": teleop_park,
+
+    "played_defense": played_defense,
+    "defense_attempts": st.session_state.defense_attempts,
+    "defense_effective": st.session_state.defense_effective,
+    "was_defended": was_defended,
+
+    "speed": speed,
+    "cycle_speed": cycle_speed,
+    "reliability": reliability,
+    "driver": driver,
+
+    "comments": comments,
+
+    "scoring_final_robot": total_score
+}
+
+
+# =========================================================
+# GUARDAR
+# =========================================================
+
+st.header("💾 Guardar Scouting")
+
+if st.button(
+    "GUARDAR MATCH",
+    type="primary",
+    use_container_width=True
+):
+
+    st.success("Scouting guardado correctamente.")
+
+    st.json(scouting_data)

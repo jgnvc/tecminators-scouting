@@ -214,6 +214,21 @@ with col2:
         [1, 2]
     )
 
+# =========================================================
+# POSICIÓN INICIAL
+# =========================================================
+
+st.subheader("Posición Inicial")
+
+st.image(
+    "field_positions.png",
+    use_container_width=True
+)
+
+st.caption(
+    "Selecciona la posición en la que inició el robot."
+)
+
 team_number = st.number_input(
     "Número de equipo",
     min_value=1,

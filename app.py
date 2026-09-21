@@ -209,17 +209,11 @@ with col1:
 
 with col2:
 
-    position_column = st.selectbox(
-        "Columna",
-        ["V", "W", "X", "Y", "Z"]
+    team_number = st.number_input(
+        "Número de equipo",
+        min_value=1,
+        step=1
     )
-
-position_row = st.selectbox(
-    "Fila",
-    [1, 2, 3, 4, 5]
-)
-
-position = f"{position_column}{position_row}"
 
 
 # =========================================================
@@ -234,13 +228,29 @@ st.image(
 )
 
 st.caption(
-    f"Posición seleccionada: {position}"
+    "Selecciona la coordenada donde inició el robot."
 )
 
-team_number = st.number_input(
-    "Número de equipo",
-    min_value=1,
-    step=1
+col1, col2 = st.columns(2)
+
+with col1:
+
+    position_column = st.selectbox(
+        "Columna",
+        ["V", "W", "X", "Y", "Z"]
+    )
+
+with col2:
+
+    position_row = st.selectbox(
+        "Fila",
+        [1, 2, 3, 4, 5]
+    )
+
+position = f"{position_column}{position_row}"
+
+st.caption(
+    f"Posición seleccionada: {position}"
 )
 
 
